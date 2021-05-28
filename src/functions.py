@@ -1,4 +1,5 @@
 import random
+from time import time, sleep
 from typing import Iterable
 
 def isNumeric(input: str):
@@ -10,9 +11,16 @@ def isNumeric(input: str):
     except:
         return False
 
+def nowTimeStamp():
+    now_second = time()
+    return round(now_second * 1000)
+
+def myCustomSleep(ms: int):
+    return sleep(ms / 1000)
+
 def generateCustomeEntranceTimeGapPrediction(maxTime: int):
     columns: Iterable[str] = ["مدت بین دو ورود", "احتمال", "احتمال تجمعی"]
-    data: Iterable[set] = []
+    data: Iterable[tuple] = []
 
     totalPrediction = 0
 
@@ -26,7 +34,7 @@ def generateCustomeEntranceTimeGapPrediction(maxTime: int):
 
 def generateCustomerServicePrediction(maxTime: int):
     columns: Iterable[str] = ["زمان خدمت دهی", "احتمال", "احتمال تجمعی"]
-    data: Iterable[set] = []
+    data: Iterable[tuple] = []
 
     totalPrediction = 0
 
@@ -41,10 +49,10 @@ def generateCustomerServicePrediction(maxTime: int):
 
 def generateCustomerEntranceTimeGap(
         customersCount: int, 
-        entranceData: Iterable[set[str]]
+        entranceData: Iterable[tuple[str]]
     ):
     columns: Iterable[str] = ["مشتری", "عدد تصادفی", "مدت بین دو ورود"]
-    data: Iterable[set] = []
+    data: Iterable[tuple] = []
 
     for i in range(1, customersCount + 1):
         if i == 1:
@@ -61,3 +69,42 @@ def generateCustomerEntranceTimeGap(
         data.append(row)
 
     return {"column": columns, "data": data}
+
+
+def generateCustomerServiceTimeGap(
+        customersCount: int, 
+        entranceData: Iterable[tuple[str]]
+    ):
+    columns: Iterable[str] = ["مشتری", "عدد تصادفی", "مدت خدمت گیری"]
+    data: Iterable[set] = []
+
+    for i in range(1, customersCount + 1):
+        customerRandomNO = round(random.uniform(0, 1), 5)
+        entranceTimeGap = 0
+        for j, (minutes, prediction, totalPrediction) in enumerate(entranceData):
+            if customerRandomNO <= totalPrediction:
+                entranceTimeGap = minutes
+                break
+        row = (i, customerRandomNO, entranceTimeGap)
+        data.append(row)
+
+    return {"column": columns, "data": data}
+
+def mergeCustomersData(
+        customersServiceTime: list[tuple], 
+        customersEntranceTime: list[tuple]
+    ) -> list[dict]:
+    customerData = []
+
+    for i, (customerNumber, _, serviceTime) in enumerate(customersServiceTime):
+        customerInfo = {
+            "index": customerNumber,
+            "serviceTime": serviceTime,
+            "lastEntranceTime": 0
+        }
+        customerData.append(customerInfo)
+
+    for i, (customerNumber2, _, lastEntranceTime) in enumerate(customersEntranceTime):
+        customerData[i]["lastEntranceTime"] = lastEntranceTime
+    # print(customerData)
+    return customerData

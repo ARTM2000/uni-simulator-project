@@ -7,6 +7,8 @@ from src.functions import (
         generateCustomeEntranceTimeGapPrediction, 
         generateCustomerServicePrediction,
         generateCustomerEntranceTimeGap,
+        generateCustomerServiceTimeGap,
+        mergeCustomersData
     )
 
 class MyWindow(QMainWindow):
@@ -71,9 +73,9 @@ class MyWindow(QMainWindow):
         self.actionBTN.move(50, 210)
         self.actionBTN.setFixedWidth(400)
         self.actionBTN.setFixedHeight(40)
-        self.actionBTN.clicked.connect(self.calculateFinalResult)
+        self.actionBTN.clicked.connect(self.calculateNecessaryData)
 
-    def calculateFinalResult(self):
+    def calculateNecessaryData(self):
         maxTimeGap = self.maxTimeGapBetweenCustomers.text().strip()
         maxServiceTime = self.maxServiceTime.text().strip()
         customersCount = self.customersCount.text().strip()
@@ -99,49 +101,65 @@ class MyWindow(QMainWindow):
 
         print("verified")
 
-        layout = QtWidgets.QVBoxLayout()
-
-        entranceTimeGapData = generateCustomeEntranceTimeGapPrediction(maxTimeGap)
+        self.entranceTimeGapData = generateCustomeEntranceTimeGapPrediction(maxTimeGap)
         # print(entranceTimeGapData)
         self.entranceTable = ResultTable(
-            entranceTimeGapData["data"], 
-            entranceTimeGapData["column"], 
+            self.entranceTimeGapData["data"], 
+            self.entranceTimeGapData["column"], 
             1, 
             350, 
             500, 
             "احتمال فاصله زمانی بین دو ورود")
-        layout.addWidget(self.entranceTable)
-        self.entranceTable.show()
-        self.entranceTable.move(0, 0)
 
-        serviceTimeData = generateCustomerServicePrediction(maxServiceTime)
+        self.serviceTimeData = generateCustomerServicePrediction(maxServiceTime)
         self.serviceTime = ResultTable(
-            serviceTimeData["data"], 
-            serviceTimeData["column"], 
+            self.serviceTimeData["data"], 
+            self.serviceTimeData["column"], 
             2, 
             350, 
             500, 
             "احتمال زمان خدمت دهی")
-        self.serviceTime.show()
-        self.serviceTime.move(370, 0)
 
-        customerEntranceTimeGapData = generateCustomerEntranceTimeGap(
+        self.customerEntranceTimeGapData = generateCustomerEntranceTimeGap(
             customersCount, 
-            entranceTimeGapData["data"]
+            self.entranceTimeGapData["data"]
         )
         # print(customerEntranceTimeGapData)
         self.customerEntrance = ResultTable(
-            customerEntranceTimeGapData["data"], 
-            customerEntranceTimeGapData["column"], 
+            self.customerEntranceTimeGapData["data"], 
+            self.customerEntranceTimeGapData["column"], 
             3, 
             350, 
             500,
             "فاصله زمانی ورود خدمت گیرندگان")
+
+        self.customerServiceTime = generateCustomerServiceTimeGap(
+            customersCount, 
+            self.serviceTimeData["data"]
+        )
+        # print(customerEntranceTimeGapData)
+        self.customerService = ResultTable(
+            self.customerServiceTime["data"], 
+            self.customerServiceTime["column"], 
+            3, 
+            370, 
+            500,
+            "مدت خدمت گیری خدمت گیرندگان")
+
+        self.close()
+
+        self.runFinalSimulatorResult()
+        self.showTables()
+
+    def runFinalSimulatorResult(self):
+        customerFinalData = mergeCustomersData(
+                self.customerServiceTime["data"], 
+                self.customerEntranceTimeGapData["data"]
+            )
+
+    def showTables(self):
+        self.entranceTable.show()
+        self.serviceTime.show()
         self.customerEntrance.show()
-        self.customerEntrance.move(1070, 0)
-
-        # customersServiceTime = generateRandomCustomerServiceTime(maxServiceTime, customersCount)
-        # print(customersServiceTime)
-
-
+        self.customerService.show()
 
