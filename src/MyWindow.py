@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow
 
 from src.ResultTable import ResultTable
+from src.simulate.Department import Department
 from src.functions import (
         isNumeric, 
         generateCustomeEntranceTimeGapPrediction, 
@@ -98,6 +99,7 @@ class MyWindow(QMainWindow):
         maxServiceTime = int(maxServiceTime)
         customersCount = int(customersCount)
         serviceCount = int(serviceCount)
+        self.numberOfServiceCount = serviceCount
 
         print("verified")
 
@@ -156,10 +158,12 @@ class MyWindow(QMainWindow):
                 self.customerServiceTime["data"], 
                 self.customerEntranceTimeGapData["data"]
             )
+        Department(servicesCount=self.numberOfServiceCount, customersData=customerFinalData)
 
     def showTables(self):
-        self.entranceTable.show()
-        self.serviceTime.show()
-        self.customerEntrance.show()
-        self.customerService.show()
+        print("show tables")
+        # self.entranceTable.show()
+        # self.serviceTime.show()
+        # self.customerEntrance.show()
+        # self.customerService.show()
 

@@ -2,6 +2,8 @@ import random
 from time import time, sleep
 from typing import Iterable
 
+from src.simulate.Customer import Customer
+
 def isNumeric(input: str):
     try:
         number = int(input)
@@ -13,10 +15,12 @@ def isNumeric(input: str):
 
 def nowTimeStamp():
     now_second = time()
-    return round(now_second * 1000)
+    # return round(now_second * 1000)
+    return round(now_second * 100)
 
 def myCustomSleep(ms: int):
-    return sleep(ms / 1000)
+    # return sleep(ms / 1000)
+    return sleep(ms/100)
 
 def generateCustomeEntranceTimeGapPrediction(maxTime: int):
     columns: Iterable[str] = ["مدت بین دو ورود", "احتمال", "احتمال تجمعی"]
@@ -107,4 +111,13 @@ def mergeCustomersData(
     for i, (customerNumber2, _, lastEntranceTime) in enumerate(customersEntranceTime):
         customerData[i]["lastEntranceTime"] = lastEntranceTime
     # print(customerData)
-    return customerData
+    customers = []
+    for customer in customerData:
+        finalCustomer = Customer(
+            index=customer["index"], 
+            serviceTime=customer["serviceTime"], 
+            lastEntranceTime=customer["lastEntranceTime"]
+        )
+        customers.append(finalCustomer)
+
+    return customers
