@@ -20,7 +20,6 @@ class Service:
                 serviceNotWorkingUntilTime
             )
         )
-        print(customerData)
         self.available = False
         self.customer = customerData.getInfo()
         startTime = nowTimeStamp()

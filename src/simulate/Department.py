@@ -1,9 +1,10 @@
+import threading
 from queue import Queue
-from time import sleep
 
 from src.functions import isNumeric, nowTimeStamp, myCustomSleep
 from src.simulate.Service import Service
 from src.simulate.Customer import Customer
+from src.simulate.ServiceTheard import ServiceThread
 
 class Department:
     def __init__(self, servicesCount: int, customersData: list[Customer]):
@@ -12,6 +13,7 @@ class Department:
         self.customers: list[dict] = customersData
         self.customersCount = len(customersData)
         self.departmentStartTimestamp = nowTimeStamp()
+        self.threads: list[ServiceThread] = []
         # create all services
         for i in range(servicesCount):
             self.services.append(Service(f"service-n{ servicesCount - i }"))
@@ -37,16 +39,17 @@ class Department:
                 self.doCustomersWork()
             remainedCustomers = remainedCustomers - 1
 
+        print("Wait until simulation for this department done!!!")
         # after all customer added to queue,
         # check if queue become empty
         # and doneWorkedCustomers's length become equal to
         # all department customers, start calculation
-        while (not self.queue.empty()) and (remainedCustomers != 0):
-            print("Wait until simulation for this department done!!!")
-            sleep(2)
-        print(self.queue.empty())
-        print(remainedCustomers)
+        allThreadsDead = False
+        while (not self.queue.empty()) and (not allThreadsDead):
+            if len(threading.enumerate()) == 0:
+                allThreadsDead = True
 
+        print(self.queue.empty())
         self.calculateResult()
 
     def doCustomersWork(self):
@@ -62,6 +65,7 @@ class Department:
             while not serviceFound:
                 for i in range(len(self.services)):
                     isAvailable = self.services[i].isServiceAvailable()
+                    print(f"{self.services[i].name} status is: ",isAvailable)
                     if isAvailable:
                         serviceFound = True
                         availableService = self.services[i]
@@ -71,10 +75,15 @@ class Department:
             customerIndex = currentCustomer.index
             print(f"customer {customerIndex} assigned to {availableService.name}")
 
-            availableService.assignACustomer(
-                currentCustomer, 
-                customerPauseTime_stop - customerPauseTime_start
+            # creating a thread for service
+            currentThread = ServiceThread(
+                service=availableService, 
+                customer=currentCustomer, 
+                customerPauseTime=customerPauseTime_stop - customerPauseTime_start
             )
+            # running thread activity
+            currentThread.start()
+            self.threads.append(currentThread)
 
     def calculateResult(self):
         print("calculation")

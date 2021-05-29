@@ -6,7 +6,7 @@ from src.simulate.Customer import Customer
 class ServiceThread(Thread):
     def __init__(self, service: Service, customer: Customer, customerPauseTime: int):
         super(ServiceThread, self).__init__()
-        self.threadID = customer["index"]
+        self.threadID = customer.index
         self.service = service
         self.customer = customer
         self.customerPauseTimeInQueue = customerPauseTime
