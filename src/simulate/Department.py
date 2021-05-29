@@ -18,7 +18,7 @@ class Department:
         for i in range(servicesCount):
             self.services.append(Service(f"service-n{ servicesCount - i }"))
         # do final customers work
-        self.addCustomersToDepartment()
+        return self.addCustomersToDepartment()
 
     def addCustomersToDepartment(self):
         remainedCustomers = len(self.customers)
@@ -50,7 +50,7 @@ class Department:
                 allThreadsDead = True
 
         print(self.queue.empty())
-        self.calculateResult()
+        return self.calculateResult()
 
     def doCustomersWork(self):
         while not self.queue.empty():
@@ -87,9 +87,33 @@ class Department:
 
     def calculateResult(self):
         print("calculation")
+
+        allServiceCustomersReport: list[dict] = []
+
         for i in range(len(self.services)):
             currentService = self.services[i]
-            print("=========================")
-            print("service name: ", currentService.name)
-            print("serviced customers => ", currentService.allServicedCustomers)
-            print("not working time => ", currentService.notWorkingServiceTimeList)
+            # finish service time of a service
+            currentService.endService()
+            # print("=========================")
+            # print("service name: ", currentService.name)
+            # print("serviced customers => ", currentService.allServicedCustomers)
+            # print("not working time => ", currentService.notWorkingServiceTimeList)
+            # concatenate this service customers report to saved one
+            allServiceCustomersReport = allServiceCustomersReport + currentService.allServicedCustomers
+        
+        # sort allServiceCustomersReport by customers indexes
+        allServiceCustomersReport.sort(key=lambda c: c["index"])
+
+        # final formatting allServiceCustomersReport
+        nowPassedTime = 0        
+        for report in allServiceCustomersReport:
+            if report["index"] == 1:
+                report["entranceTime"] = 0
+            else:
+                report["entranceTime"] = nowPassedTime + report["lastEntranceTime"]
+                nowPassedTime = nowPassedTime + report["lastEntranceTime"]
+            report["serviceStartAt"] = report["serviceStartAt"] - self.departmentStartTimestamp
+            report["serviceEndAt"] = report["serviceEndAt"] - self.departmentStartTimestamp
+            report["spendTimeInDepartment"] = report["serviceEndAt"] - report["entranceTime"]
+
+        print(allServiceCustomersReport)

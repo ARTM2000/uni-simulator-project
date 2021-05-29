@@ -39,3 +39,13 @@ class Service:
         # reset not working timestamp for service
         self.currentServiceNotWorkingTimestamp = nowTimeStamp()
         self.available = True
+
+    def endService(self):
+        nowTimestamp = nowTimeStamp()
+        self.notWorkingServiceTimeList.append(
+            (
+                "-", # service not working time until customers ends
+                self.currentServiceNotWorkingTimestamp, 
+                nowTimestamp
+            )
+        )
