@@ -46,8 +46,15 @@ class Department:
         # all department customers, start calculation
         allThreadsDead = False
         while (not self.queue.empty()) and (not allThreadsDead):
-            if len(threading.enumerate()) == 0:
-                allThreadsDead = True
+            # if len(threading.enumerate()) == 0:
+            #     allThreadsDead = True
+            for i in range(len(self.threads)):
+                currentThread = self.threads[i]
+                currentThreadServiceIsAvailable = currentThread.service.isServiceAvailable()
+                if not currentThreadServiceIsAvailable:
+                    break
+                if i + 1 == len(self.threads):
+                    allThreadsDead = True
 
         print(self.queue.empty())
         return self.calculateResult()
@@ -94,10 +101,10 @@ class Department:
             currentService = self.services[i]
             # finish service time of a service
             currentService.endService()
-            # print("=========================")
-            # print("service name: ", currentService.name)
-            # print("serviced customers => ", currentService.allServicedCustomers)
-            # print("not working time => ", currentService.notWorkingServiceTimeList)
+            print("=========================")
+            print("service name: ", currentService.name)
+            print("serviced customers => ", currentService.allServicedCustomers)
+            print("not working time => ", currentService.notWorkingServiceTimeList)
             # concatenate this service customers report to saved one
             allServiceCustomersReport = allServiceCustomersReport + currentService.allServicedCustomers
         
@@ -116,4 +123,4 @@ class Department:
             report["serviceEndAt"] = report["serviceEndAt"] - self.departmentStartTimestamp
             report["spendTimeInDepartment"] = report["serviceEndAt"] - report["entranceTime"]
 
-        print(allServiceCustomersReport)
+        # print(allServiceCustomersReport)
