@@ -80,7 +80,6 @@ class Department:
             customerPauseTime_stop = nowTimeStamp()
 
             customerIndex = currentCustomer.index
-            print(f"customer {customerIndex} assigned to {availableService.name}")
 
             # creating a thread for service
             currentThread = ServiceThread(
@@ -90,6 +89,12 @@ class Department:
             )
             # running thread activity
             currentThread.start()
+            for i in range(len(self.services)):
+                if self.services[i].name != availableService.name:
+                    self.services[i].watchForNewCustomerInDepartment(
+                        customerIndex, 
+                        currentThread.getThreadStartTimestamp()
+                    )
             self.threads.append(currentThread)
 
     def calculateResult(self):
