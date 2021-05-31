@@ -9,7 +9,7 @@ def isNumeric(input: str):
         number = int(input)
         if number == 0:
             raise ""
-        return True
+        return True 
     except:
         return False
 
