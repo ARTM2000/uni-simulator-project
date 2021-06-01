@@ -23,8 +23,6 @@ class Department:
         parent.simulationTable = finalTable
 
     def addCustomersToDepartment(self):
-        remainedCustomers = len(self.customers)
-        print(remainedCustomers)
         for currentCustomer in self.customers:
             # if lastEntranceTime exist, we pause until
             # time arrive
@@ -39,9 +37,7 @@ class Department:
             # if queue was empty, recall doCustomerWork
             if queueWasEmpty:
                 self.doCustomersWork()
-            remainedCustomers = remainedCustomers - 1
 
-        print("Wait until simulation for this department done!!!")
         # after all customer added to queue,
         # check if queue become empty
         # and doneWorkedCustomers's length become equal to
@@ -55,7 +51,6 @@ class Department:
                 if i + 1 == len(self.threads):
                     allThreadsDead = True
 
-        print(self.queue.empty())
         return self.calculateResult()
 
     def doCustomersWork(self):
@@ -71,10 +66,12 @@ class Department:
             while not serviceFound:
                 for i in range(len(self.services)):
                     isAvailable = self.services[i].isServiceAvailable()
-                    print(f"{self.services[i].name} status is: ",isAvailable)
+                    # print(f"{self.services[i].name} status is: ",isAvailable)
                     if isAvailable:
                         serviceFound = True
                         availableService = self.services[i]
+                
+                # for updating show service available or not
             
             customerPauseTime_stop = nowTimeStamp()
 
@@ -97,17 +94,16 @@ class Department:
             self.threads.append(currentThread)
 
     def calculateResult(self):
-        print("calculation", len(self.threads))
 
         allServiceCustomersReport: list[dict] = []
         allNotWorkingServiceTime: list[dict] = []
 
         for i in range(len(self.services)):
             currentService = self.services[i]
-            print("=========================")
-            print("service name: ", currentService.name)
-            print("serviced customers => ", currentService.allServicedCustomers)
-            print("not working time => ", currentService.notWorkingServiceTimeList)
+            # print("=========================")
+            # print("service name: ", currentService.name)
+            # print("serviced customers => ", currentService.allServicedCustomers)
+            # print("not working time => ", currentService.notWorkingServiceTimeList)
             # concatenate this service customers report to saved one
             allServiceCustomersReport = allServiceCustomersReport + currentService.allServicedCustomers
             allNotWorkingServiceTime = allNotWorkingServiceTime + currentService.notWorkingServiceTimeList

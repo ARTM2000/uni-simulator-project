@@ -36,6 +36,7 @@ class MyWindow(QMainWindow):
         #-----------
         self.maxServiceTime = QtWidgets.QLineEdit(self)
         self.maxServiceTime.setMinimumWidth(80)
+        self.maxServiceTime.setText("10")
         self.maxServiceTime.move(50, 43)
         
         # customer entrance time gap
@@ -46,6 +47,7 @@ class MyWindow(QMainWindow):
         #-----------
         self.maxTimeGapBetweenCustomers = QtWidgets.QLineEdit(self)
         self.maxTimeGapBetweenCustomers.setMinimumWidth(80)
+        self.maxTimeGapBetweenCustomers.setText("6")
         self.maxTimeGapBetweenCustomers.move(50, 83)
 
         # simulation customers count
@@ -56,6 +58,7 @@ class MyWindow(QMainWindow):
         #-----------
         self.customersCount = QtWidgets.QLineEdit(self)
         self.customersCount.setMinimumWidth(80)
+        self.customersCount.setText("200")
         self.customersCount.move(50, 123)
 
         # services count
@@ -66,6 +69,7 @@ class MyWindow(QMainWindow):
         #-----------
         self.serviceCount = QtWidgets.QLineEdit(self)
         self.serviceCount.setMinimumWidth(80)
+        self.serviceCount.setText("8")
         self.serviceCount.move(50, 163)
 
         self.actionBTN = QtWidgets.QPushButton(self)
@@ -100,6 +104,7 @@ class MyWindow(QMainWindow):
         customersCount = int(customersCount)
         serviceCount = int(serviceCount)
         self.numberOfServiceCount = serviceCount
+
 
         print("verified")
 
@@ -148,8 +153,6 @@ class MyWindow(QMainWindow):
             500,
             "مدت خدمت گیری خدمت گیرندگان")
 
-        # self.close()
-
         self.runFinalSimulatorResult()
         self.showTables()
 
@@ -166,9 +169,10 @@ class MyWindow(QMainWindow):
 
     def showTables(self):
         print("show tables")
+        self.serviceTime.show()
         self.customerEntrance.show()
         self.customerService.show()
         self.entranceTable.show()
-        self.serviceTime.show()
         self.simulationTable.show()
+        self.close()
 
