@@ -34,6 +34,7 @@ class Service:
 
         if self.available:
             newNotWorkingRecord = {}
+            newNotWorkingRecord["name"] = self.name
             newNotWorkingRecord["cIndex"] = '-'
             newNotWorkingRecord["from"] = newCustomerEnterTimestamp
             newNotWorkingRecord["to"] = '-'
@@ -67,11 +68,13 @@ class Service:
         self.customer["serviceStartAt"] = serviceStartAt
         customerEndTime = nowTimeStamp()
         self.customer["serviceEndAt"] = customerEndTime
+        self.customer["serviceName"] = self.name
         self.allServicedCustomers.append(self.customer)
 
         # after customer service finished, we add
         # a new notWorkingRecore for service until completed
         newNotWorkingRecord = {}
+        newNotWorkingRecord["name"] = self.name
         newNotWorkingRecord["cIndex"] = '-'
         newNotWorkingRecord["from"] = customerEndTime
         newNotWorkingRecord["to"] = '-'
@@ -80,13 +83,3 @@ class Service:
         ## reset not working timestamp for service
         ## self.currentServiceNotWorkingTimestamp = nowTimeStamp()
         self.available = True
-
-    def endService(self):
-        nowTimestamp = nowTimeStamp()
-        # self.notWorkingServiceTimeList.append(
-        #     (
-        #         "-", # service not working time until customers ends
-        #         self.currentServiceNotWorkingTimestamp, 
-        #         nowTimestamp
-        #     )
-        # )

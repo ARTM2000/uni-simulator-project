@@ -5,12 +5,13 @@ from src.functions import isNumeric, nowTimeStamp, myCustomSleep
 from src.simulate.Service import Service
 from src.simulate.Customer import Customer
 from src.simulate.ServiceTheard import ServiceThread
+from src.ResultTable import ResultTable
 
 class Department:
-    def __init__(self, servicesCount: int, customersData: list[Customer]):
+    def __init__(self, servicesCount: int, customersData: list[Customer], parent):
         self.queue = Queue(maxsize=0)
         self.services: list[Service] = []
-        self.customers: list[dict] = customersData
+        self.customers: list[Customer] = customersData
         self.customersCount = len(customersData)
         self.departmentStartTimestamp = nowTimeStamp()
         self.threads: list[ServiceThread] = []
@@ -18,7 +19,8 @@ class Department:
         for i in range(servicesCount):
             self.services.append(Service(f"service-n{ servicesCount - i }"))
         # do final customers work
-        return self.addCustomersToDepartment()
+        finalTable = self.addCustomersToDepartment()
+        parent.simulationTable = finalTable
 
     def addCustomersToDepartment(self):
         remainedCustomers = len(self.customers)
@@ -45,13 +47,10 @@ class Department:
         # and doneWorkedCustomers's length become equal to
         # all department customers, start calculation
         allThreadsDead = False
-        while (not self.queue.empty()) and (not allThreadsDead):
-            # if len(threading.enumerate()) == 0:
-            #     allThreadsDead = True
+        while (not allThreadsDead):
             for i in range(len(self.threads)):
                 currentThread = self.threads[i]
-                currentThreadServiceIsAvailable = currentThread.service.isServiceAvailable()
-                if not currentThreadServiceIsAvailable:
+                if currentThread.is_alive():
                     break
                 if i + 1 == len(self.threads):
                     allThreadsDead = True
@@ -61,7 +60,7 @@ class Department:
 
     def doCustomersWork(self):
         while not self.queue.empty():
-            currentCustomer = self.queue.get()
+            currentCustomer: Customer = self.queue.get()
 
             availableService = None
             serviceFound = False
@@ -98,20 +97,20 @@ class Department:
             self.threads.append(currentThread)
 
     def calculateResult(self):
-        print("calculation")
+        print("calculation", len(self.threads))
 
         allServiceCustomersReport: list[dict] = []
+        allNotWorkingServiceTime: list[dict] = []
 
         for i in range(len(self.services)):
             currentService = self.services[i]
-            # finish service time of a service
-            currentService.endService()
             print("=========================")
             print("service name: ", currentService.name)
             print("serviced customers => ", currentService.allServicedCustomers)
             print("not working time => ", currentService.notWorkingServiceTimeList)
             # concatenate this service customers report to saved one
             allServiceCustomersReport = allServiceCustomersReport + currentService.allServicedCustomers
+            allNotWorkingServiceTime = allNotWorkingServiceTime + currentService.notWorkingServiceTimeList
         
         # sort allServiceCustomersReport by customers indexes
         allServiceCustomersReport.sort(key=lambda c: c["index"])
@@ -127,5 +126,45 @@ class Department:
             report["serviceStartAt"] = report["serviceStartAt"] - self.departmentStartTimestamp
             report["serviceEndAt"] = report["serviceEndAt"] - self.departmentStartTimestamp
             report["spendTimeInDepartment"] = report["serviceEndAt"] - report["entranceTime"]
+            if report["index"] == 1:
+                report["servicesNotWorkingTime"] = '-'
+            else :
+                listOfNotWorkingTimesBeforeCustomerEntrance = list(
+                        filter(
+                        lambda nwt: nwt['cIndex'] == report['index'], 
+                        allNotWorkingServiceTime
+                    )
+                )
+                beforeThisCustomerTotalNotWorkingTime = 0
+                if len(listOfNotWorkingTimesBeforeCustomerEntrance) > 0:
+                    for nwt in listOfNotWorkingTimesBeforeCustomerEntrance:
+                        notWorkingTime = nwt['to'] - nwt['from']
+                        beforeThisCustomerTotalNotWorkingTime += notWorkingTime
+                report["servicesNotWorkingTime"] = beforeThisCustomerTotalNotWorkingTime
 
-        # print(allServiceCustomersReport)
+        finalTableHeader = [
+            'مشتری', 'مدت از آخرین ورود', 'زمان ورود', 'مدت خدمت دهی', 'زمان شروع خدمت', 'مدت ماندن مشتری در صف', 'زمان پایان خدمت', 'مدت ماندن مشتری در سیستم', 'مدت بیکاری خدمت دهنده(گان)']
+        finalFormattedDataForTable: list[tuple] = []
+        for report in allServiceCustomersReport:
+            row = (
+                report['index'], 
+                report['lastEntranceTime'], 
+                report['entranceTime'], 
+                report['serviceTime'],
+                report['serviceStartAt'],
+                report['pauseTime'],
+                report['serviceEndAt'],
+                report['spendTimeInDepartment'],
+                report['servicesNotWorkingTime']
+            )
+            finalFormattedDataForTable.append(row)
+
+        finalSimulationTable = ResultTable(
+            finalFormattedDataForTable, 
+            finalTableHeader, 
+            4, 
+            1400, 
+            500, 
+            "نتیجه شبیه سازی - Alireza Tanoomandian"
+        )
+        return finalSimulationTable

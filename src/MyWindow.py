@@ -148,7 +148,7 @@ class MyWindow(QMainWindow):
             500,
             "مدت خدمت گیری خدمت گیرندگان")
 
-        self.close()
+        # self.close()
 
         self.runFinalSimulatorResult()
         self.showTables()
@@ -158,12 +158,17 @@ class MyWindow(QMainWindow):
                 self.customerServiceTime["data"], 
                 self.customerEntranceTimeGapData["data"]
             )
-        Department(servicesCount=self.numberOfServiceCount, customersData=customerFinalData)
+        Department(
+            servicesCount=self.numberOfServiceCount, 
+            customersData=customerFinalData,
+            parent=self
+        )
 
     def showTables(self):
         print("show tables")
-        # self.entranceTable.show()
-        # self.serviceTime.show()
-        # self.customerEntrance.show()
-        # self.customerService.show()
+        self.customerEntrance.show()
+        self.customerService.show()
+        self.entranceTable.show()
+        self.serviceTime.show()
+        self.simulationTable.show()
 
